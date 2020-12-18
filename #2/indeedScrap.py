@@ -1,24 +1,37 @@
 import requests
 from bs4 import BeautifulSoup
 
-indeed_result = requests.get("https://kr.indeed.com/%EC%B7%A8%EC%97%85?as_and=python&as_phr=&as_any=&as_not=&as_ttl=&as_cmp=&jt=all&st=&salary=&fromage=any&limit=50")
+LIMIT = 50
+INDEED_URL = "https://kr.indeed.com/%EC%B7%A8%EC%97%85?as_and=python&as_phr=&as_any=&as_not=&as_ttl=&as_cmp=&jt=all&st=&salary=&fromage=any&limit={}".format(LIMIT)
 
-#print(indeed_result.text) # response 200 : okay , getting html
+def extract_indeed_pages():
+    result = requests.get(INDEED_URL)
 
-indeed_soup = BeautifulSoup(indeed_result.text, "html.parser")
+    #print(indeed_result.text) # response 200 : okay , getting html
 
-#print(indeed_soup)
-pagination = indeed_soup.find("div", {"class" : "pagination"})
+    soup = BeautifulSoup(result.text, "html.parser")
 
-#print(pagination)
+    #print(indeed_soup)
+    pagination = soup.find("div", {"class" : "pagination"})
 
-pages = pagination.find_all('a')
-spans = []
-#print(pages)
+    #print(pagination)
 
-for page in pages:
-    spans.append(page.find("span"))
+    pages = pagination.find_all('a')
+    spans = []
+    #print(pages)
 
-print(spans[:-1])
+    for page in pages[:-1]:
+        spans.append(int(page.find("span").string))
 
+    max_page = spans[-1]
 
+    return max_page
+
+def extract_indeed_jobs(last_page):
+    for page in range(last_page):
+        result = requests.get(f"{INDEED_URL}&start={page*LIMIT}")
+        print(result.status_code)
+
+last_indeed_page = extract_indeed_pages()
+
+extract_indeed_jobs(last_indeed_page)
