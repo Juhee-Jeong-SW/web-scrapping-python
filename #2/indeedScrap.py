@@ -49,6 +49,8 @@ def extract_indeed_jobs(last_page):
         company =  company.strip() # 빈 칸 없애주기
         print(company)
 
+        # 뭘 하지 않았지만 잔디 심기 위해 쓰는 commit.. 
+
 
     return jobs
 
